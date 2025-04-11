@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, render_template, redirect, session, url_for
 from model import Session, Message, initialize_db, Base, engine, Team, TeamMember
 from functools import wraps
+from sqlalchemy.orm import joinedload
 
 app = Flask(__name__)
 
@@ -18,9 +19,7 @@ initialize_db()
 def get_nav_items(active_page):
     return [
         {'name': 'Overview', 'url': '/', 'active': active_page == 'overview'},
-        {'name': 'Queries', 'url': '/queries', 'active': active_page == 'queries'},
         {'name': 'Teams', 'url': '/teams', 'active': active_page == 'teams'},
-        {'name': 'Reports', 'url': '/reports', 'active': active_page == 'reports'},
         {'name': 'Settings', 'url': '/settings', 'active': active_page == 'settings'}
     ]
 
@@ -121,11 +120,12 @@ def team_management():
 def get_teams():
     try:
         session = Session()
-        teams = session.query(Team).all()
+        # Use joinedload to prevent N+1 queries
+        teams = session.query(Team).options(joinedload(Team.members)).all()
         return jsonify([{
             'id': team.id,
             'name': team.name,
-            'category': team.category or team.name,  # Fallback to name if category is None
+            'category': team.category or team.name,
             'members': [{
                 'id': member.id,
                 'name': member.name,
@@ -144,7 +144,8 @@ def get_teams():
 def get_team_details(team_id):
     try:
         db_session = Session()
-        team = db_session.query(Team).get(team_id)
+        # Use joinedload here as well
+        team = db_session.query(Team).options(joinedload(Team.members)).get(team_id)
         if not team:
             return jsonify({'error': 'Team not found'}), 404
             

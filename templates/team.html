@@ -13,7 +13,6 @@
 
 <div class="teams-container">
     <div id="teams-list" class="teams-list">
-        <!-- Note: id="teams-list" added above -->
         <h2>Teams</h2>
         <p class="subtitle">Select a team to view details</p>
         {% for team in teams %}
@@ -30,30 +29,34 @@
     <div class="team-details">
         <div class="team-header">
             <h2 id="selected-team-name"></h2>
+            <button id="openAddMemberBtn" class="add-button">Add Member</button>
         </div>
         
         <!-- Popup Form -->
         <div id="addMemberPopup" class="popup-overlay">
             <div class="popup-content">
                 <div class="popup-header">
-                    <h2>Add Team Member</h2>
+                    <div class="header-content">
+                        <h2>Add Team Member</h2>
+                        <p class="subtitle">Add a new member to the team</p>
+                    </div>
                     <span class="close-popup">&times;</span>
                 </div>
                 <div class="add-member-form">
-                    <form id="addMemberForm" onsubmit="handleAddMember(event)" class="horizontal-form">
-                        <div class="form-group">
+                    <form id="addMemberForm">
+                        <div class="form-field">
                             <label for="name">Full Name</label>
-                            <input type="text" id="name" name="name" class="form-control" placeholder="Enter full name" required>
+                            <input type="text" id="name" name="name" class="form-control" placeholder="Enter member name" required>
                         </div>
-                        <div class="form-group">
+                        <div class="form-field">
                             <label for="email">Email Address</label>
                             <input type="email" id="email" name="email" class="form-control" placeholder="Enter email address" required>
                         </div>
-                        <div class="form-group">
-                            <label for="role">Role</label>
-                            <input type="text" id="role" name="role" class="form-control" placeholder="Enter role" required>
+                        <div class="form-field">
+                            <label for="role">Team Role</label>
+                            <input type="text" id="role" name="role" class="form-control" placeholder="Enter role (e.g. Support Agent)" required>
                         </div>
-                        <div class="form-group" style="flex: 0 0 auto;">
+                        <div class="form-actions">
                             <button type="submit" class="submit-button">Add Member</button>
                         </div>
                     </form>
@@ -61,19 +64,22 @@
             </div>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Role</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Issues Solved</th>
-                </tr>
-            </thead>
-            <tbody id="team-members">
-            </tbody>
-        </table>
+        <div class="members-table">
+            <h3>Team Members</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Issues Solved</th>
+                    </tr>
+                </thead>
+                <tbody id="team-members">
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

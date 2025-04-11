@@ -5,19 +5,17 @@ async function fetchTeams() {
         const response = await fetch('/api/teams');
         const teams = await response.json();
         if (teams.error) {
-            console.error('Error fetching teams:', teams.error);
             return;
         }
         renderTeams(teams);
     } catch (error) {
-        console.error('Failed to fetch teams:', error);
+        // Handle error silently
     }
 }
 
 function renderTeams(teams) {
     const teamsList = document.getElementById('teams-list');
     if (!teamsList) {
-        console.error('teams-list element not found');
         return;
     }
     
@@ -46,19 +44,17 @@ async function showTeamDetails(element, teamId) {
         const response = await fetch(`/api/teams/${teamId}`);
         const team = await response.json();
         if (team.error) {
-            console.error('Error fetching team details:', team.error);
             return;
         }
         renderTeamMembers(team.members);
     } catch (error) {
-        console.error('Failed to fetch team details:', error);
+        // Handle error silently
     }
 }
 
 function renderTeamMembers(members) {
     const tbody = document.getElementById('team-members');
     if (!tbody) {
-        console.error('team-members element not found');
         return;
     }
 
@@ -116,7 +112,6 @@ async function handleAddMember(event) {
         
         updateMembersList(result.member);
         event.target.reset();
-        addMemberPopup.classList.remove('active');
     } catch (error) {
         alert('Failed to add member: ' + error.message);
     }
@@ -125,7 +120,6 @@ async function handleAddMember(event) {
 function updateMembersList(newMember) {
     const membersList = document.getElementById('team-members');
     if (!membersList) {
-        console.error('team-members element not found');
         return;
     }
 
@@ -150,7 +144,6 @@ function updateMembersList(newMember) {
     // Update team card member count
     const teamCard = document.querySelector(`[data-team-id="${currentTeamId}"]`);
     if (!teamCard) {
-        console.error('Team card element not found');
         return;
     }
 
@@ -160,43 +153,35 @@ function updateMembersList(newMember) {
 }
 
 // Initialize the page
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Page loaded, initializing...');
+document.addEventListener('DOMContentLoaded', function() {
     fetchTeams();
-});
-
-// Show first team details on page load
-document.addEventListener('DOMContentLoaded', () => {
+    
+    // Show first team details on page load
     const firstTeam = document.querySelector('.team-card');
     if (firstTeam) {
         showTeamDetails(firstTeam, firstTeam.dataset.teamId);
     }
-});
 
-document.addEventListener('DOMContentLoaded', function() {
+    // Popup Controls
     const openAddMemberBtn = document.getElementById('openAddMemberBtn');
     const addMemberPopup = document.getElementById('addMemberPopup');
     const closePopupBtn = document.querySelector('.close-popup');
     const addMemberForm = document.getElementById('addMemberForm');
 
-    // Open popup
     openAddMemberBtn.addEventListener('click', () => {
         addMemberPopup.classList.add('active');
     });
 
-    // Close popup when clicking X button
     closePopupBtn.addEventListener('click', () => {
         addMemberPopup.classList.remove('active');
     });
 
-    // Close popup when clicking outside
     addMemberPopup.addEventListener('click', (e) => {
         if (e.target === addMemberPopup) {
             addMemberPopup.classList.remove('active');
         }
     });
 
-    // Handle form submission
     addMemberForm.addEventListener('submit', function(event) {
         event.preventDefault();
         handleAddMember(event);

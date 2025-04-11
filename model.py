@@ -1,9 +1,9 @@
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker, relationship, joinedload
 
 Base = declarative_base()
-engine = create_engine('sqlite:///dashboard.db', echo=True)
+engine = create_engine('sqlite:///dashboard.db', echo=False)  # Set echo=False to reduce logs
 Session = sessionmaker(bind=engine)
 
 class Message(Base):
@@ -23,7 +23,7 @@ class Team(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, unique=True)
     category = Column(String)
-    members = relationship('TeamMember', backref='team')
+    members = relationship('TeamMember', back_populates='team', lazy='joined')
 
 class TeamMember(Base):
     __tablename__ = 'team_members'
@@ -35,10 +35,11 @@ class TeamMember(Base):
     status = Column(String, default='active')
     team_id = Column(Integer, ForeignKey('teams.id'))
     issues_solved = Column(Integer, default=0)
+    team = relationship('Team', back_populates='members')
 
 def initialize_teams():
     session = Session()
-    if session.query(Team).count() == 0:
+    try:
         teams = [
             Team(name='Technical Support', category='Support'),
             Team(name='Billing Support', category='Support'),
@@ -52,45 +53,58 @@ def initialize_teams():
             Team(name='Sales Support', category='Sales')
         ]
         session.add_all(teams)
-        try:
-            session.commit()
-        except:
-            session.rollback()
-            raise
-        finally:
-            session.close()
+        session.commit()
+        print("Teams initialized successfully")
+    except Exception as e:
+        print(f"Error initializing teams: {str(e)}")
+        session.rollback()
+        raise
+    finally:
+        session.close()
 
 def initialize_db():
-    Base.metadata.drop_all(engine)
+    # Create all tables if they don't exist
     Base.metadata.create_all(engine)
-    initialize_teams()
-    session = Session()
     
-    # Add sample data if table is empty
-    if session.query(Message).count() == 0:
-        sample_messages = [
-            Message(
-                queryNumber=1,
-                message="System outage in region A",
-                routingTeam="Technical Support",
-                queryType="Technical Support",
-                confidentialityLevel=90,  # High confidentiality
-                status="Pending"
-            ),
-            Message(
-                queryNumber=2,
-                message="Request for new hardware",
-                routingTeam="Product Support",
-                queryType="Product Support",
-                confidentialityLevel=50,  # Medium confidentiality
-                status="Pending"
-            )
-        ]
-        session.add_all(sample_messages)
-        session.commit()
-        print("Database initialized with sample data.")
-    else:
-        print("Database already initialized.")
+    session = Session()
+    try:
+        # Initialize teams only if teams table is empty
+        if session.query(Team).count() == 0:
+            initialize_teams()
+            
+            # Add sample messages only if messages table is empty
+            if session.query(Message).count() == 0:
+                sample_messages = [
+                    Message(
+                        queryNumber=1,
+                        message="System outage in region A",
+                        routingTeam="Technical Support",
+                        queryType="Technical Support",
+                        confidentialityLevel=90,
+                        status="Pending"
+                    ),
+                    Message(
+                        queryNumber=2,
+                        message="Request for new hardware",
+                        routingTeam="Product Support",
+                        queryType="Product Support",
+                        confidentialityLevel=50,
+                        status="Pending"
+                    )
+                ]
+                session.add_all(sample_messages)
+                session.commit()
+                print("Database initialized with sample data.")
+            else:
+                print("Messages table already contains data.")
+        else:
+            print("Teams table already contains data.")
+    except Exception as e:
+        print(f"Error during database initialization: {str(e)}")
+        session.rollback()
+        raise
+    finally:
+        session.close()
 
 if __name__ == "__main__":
     initialize_db()
