@@ -464,3 +464,46 @@ body.dark input[type="number"] {
     border-color: #6B7280;
     color: #F9FAFB;
 }
+
+/* Overview page specific layout */
+.admin-overview {
+    min-height: calc(100vh - 100px); /* Adjust for header and footer */
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-overview .main-content {
+    flex: 1;
+}
+
+.admin-overview .footer {
+    position: sticky;
+    bottom: 0;
+    width: calc(100% - 250px);
+}
+
+/* Footer Styles */
+.footer {
+    background-color: #1d1f27;
+    padding: 1rem 0;
+    margin-top: auto;
+    margin-left: 270px;
+    text-align: center;
+    width: calc(100% - 290px); /* Adjusted width to prevent overflow */
+}
+
+.footer .copyright {
+    color: #ffffff; /* Changed from #a0aec0 to white for better visibility */
+    font-size: 0.9rem; /* Slightly larger text */
+    margin: 0;
+    font-weight: 400; /* Added font weight */
+}
+
+/* Dark theme footer adjustment */
+body.dark .footer {
+    background-color: #111827;
+}
+
+body.dark .footer .copyright {
+    color: #ffffff; /* Ensure text is visible in dark mode too */
+}

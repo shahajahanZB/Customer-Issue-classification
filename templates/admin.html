@@ -1,26 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="header">
-    <h1>Query Dashboard</h1>
-</div>
+<div class="admin-overview">
+    <div class="header">
+        <h1>Query Dashboard</h1>
+    </div>
 
-<div class="table-container">
-    <table>
-        <thead>
-            <tr>
-                <th>Query Numbers</th>
-                <th>Message</th>
-                <th>Routing Team</th>
-                <th>Query Type</th>
-                <th>Confidentiality Level</th>
-                <th>Query Status</th>
-            </tr>
-        </thead>
-        <tbody id="message-table-body">
-            <!-- Rows will be dynamically populated by JavaScript -->
-        </tbody>
-    </table>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Query Numbers</th>
+                    <th>Message</th>
+                    <th>Routing Team</th>
+                    <th>Query Type</th>
+                    <th>Confidentiality Level</th>
+                    <th>Query Status</th>
+                </tr>
+            </thead>
+            <tbody id="message-table-body">
+                <!-- Rows will be dynamically populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
 
