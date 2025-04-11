@@ -19,16 +19,16 @@ initialize_db()
 def get_nav_items(active_page):
     if session.get('user_type') == 'admin':
         return [
-            {'name': 'Overview', 'url': '/', 'active': active_page == 'overview'},
-            {'name': 'Teams', 'url': '/teams', 'active': active_page == 'teams'},
-            {'name': 'Settings', 'url': '/settings', 'active': active_page == 'settings'}
+            {'name': '🪟Overview', 'url': '/', 'active': active_page == 'overview'},
+            {'name': '👤Teams', 'url': '/teams', 'active': active_page == 'teams'},
+            {'name': '⌚Settings', 'url': '/settings', 'active': active_page == 'settings'}
         ]
     else:  # member navigation
         return [
-            {'name': 'Dashboard', 'url': '/member/dashboard', 'active': active_page == 'dashboard'},
-            {'name': 'My Tasks', 'url': '/member/my-tasks', 'active': active_page == 'my-tasks'},
-            {'name': 'Resolved Tasks', 'url': '/member/resolved-tasks', 'active': active_page == 'resolved'},
-            {'name': 'Profile', 'url': '/member/profile', 'active': active_page == 'profile'}
+            {'name': '🔠Dashboard', 'url': '/member/dashboard', 'active': active_page == 'dashboard'},
+            {'name': '🤺My Tasks', 'url': '/member/my-tasks', 'active': active_page == 'my-tasks'},
+            {'name': '✅Resolved Tasks', 'url': '/member/resolved-tasks', 'active': active_page == 'resolved'},
+            {'name': '😎Profile', 'url': '/member/profile', 'active': active_page == 'profile'}
         ]
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -90,6 +90,14 @@ def teams():
     return render_template('team.html',
                          nav_items=get_nav_items('teams'),
                          teams=all_teams)
+
+@app.route('/settings')
+@login_required
+def settings():
+    if session.get('user_type') != 'admin':
+        return redirect(url_for('member_dashboard'))
+    return render_template('settings.html',
+                         nav_items=get_nav_items('settings'))
 
 @app.route('/api/messages', methods=['GET'])
 @login_required

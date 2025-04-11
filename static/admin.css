@@ -384,8 +384,83 @@ detail-item label {
   margin-bottom: 0.5rem;
 }
 
-.detail-item p {
+detail-item p {
   margin: 0;
   color: #111827;
   font-weight: 500;
+}
+
+/* Settings Page Styles */
+.settings-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.settings-section {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.settings-section h2 {
+    margin: 0 0 1rem 0;
+    color: #374151;
+    font-size: 1.25rem;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+}
+
+.setting-item label {
+    color: #4B5563;
+    font-weight: 500;
+}
+
+.setting-item select,
+.setting-item input[type="number"] {
+    padding: 0.5rem;
+    border: 1px solid #D1D5DB;
+    border-radius: 4px;
+    width: 200px;
+}
+
+.setting-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+
+/* Dark theme styles */
+body.dark {
+    background-color: #1F2937;
+    color: #F9FAFB;
+}
+
+body.dark .settings-section {
+    background-color: #374151;
+}
+
+body.dark .setting-item {
+    border-color: #4B5563;
+}
+
+body.dark .setting-item label {
+    color: #D1D5DB;
+}
+
+body.dark select,
+body.dark input[type="number"] {
+    background-color: #4B5563;
+    border-color: #6B7280;
+    color: #F9FAFB;
 }
