@@ -29,38 +29,29 @@
     <div class="team-details">
         <div class="team-header">
             <h2 id="selected-team-name"></h2>
-            <button id="openAddMemberBtn" class="add-button">Add Member</button>
         </div>
         
-        <!-- Popup Form -->
-        <div id="addMemberPopup" class="popup-overlay">
-            <div class="popup-content">
-                <div class="popup-header">
-                    <div class="header-content">
-                        <h2>Add Team Member</h2>
-                        <p class="subtitle">Add a new member to the team</p>
+        <!-- Static Form -->
+        <div class="add-member-section">
+            <div class="add-member-form">
+                <h3>Add New Team Member</h3>
+                <form id="addMemberForm">
+                    <div class="form-field">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" class="form-control" placeholder="Enter member name" required>
                     </div>
-                    <span class="close-popup">&times;</span>
-                </div>
-                <div class="add-member-form">
-                    <form id="addMemberForm">
-                        <div class="form-field">
-                            <label for="name">Full Name</label>
-                            <input type="text" id="name" name="name" class="form-control" placeholder="Enter member name" required>
-                        </div>
-                        <div class="form-field">
-                            <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" class="form-control" placeholder="Enter email address" required>
-                        </div>
-                        <div class="form-field">
-                            <label for="role">Team Role</label>
-                            <input type="text" id="role" name="role" class="form-control" placeholder="Enter role (e.g. Support Agent)" required>
-                        </div>
-                        <div class="form-actions">
-                            <button type="submit" class="submit-button">Add Member</button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="form-field">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="Enter email address" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="role">Team Role</label>
+                        <input type="text" id="role" name="role" class="form-control" placeholder="Enter role (e.g. Support Agent)" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="submit-button">Add Member</button>
+                    </div>
+                </form>
             </div>
         </div>
 

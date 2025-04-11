@@ -162,29 +162,9 @@ document.addEventListener('DOMContentLoaded', function() {
         showTeamDetails(firstTeam, firstTeam.dataset.teamId);
     }
 
-    // Popup Controls
-    const openAddMemberBtn = document.getElementById('openAddMemberBtn');
-    const addMemberPopup = document.getElementById('addMemberPopup');
-    const closePopupBtn = document.querySelector('.close-popup');
+    // Simple form handling
     const addMemberForm = document.getElementById('addMemberForm');
-
-    openAddMemberBtn.addEventListener('click', () => {
-        addMemberPopup.classList.add('active');
-    });
-
-    closePopupBtn.addEventListener('click', () => {
-        addMemberPopup.classList.remove('active');
-    });
-
-    addMemberPopup.addEventListener('click', (e) => {
-        if (e.target === addMemberPopup) {
-            addMemberPopup.classList.remove('active');
-        }
-    });
-
-    addMemberForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-        handleAddMember(event);
-        addMemberPopup.classList.remove('active');
-    });
+    if (addMemberForm) {
+        addMemberForm.addEventListener('submit', handleAddMember);
+    }
 });

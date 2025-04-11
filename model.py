@@ -16,6 +16,8 @@ class Message(Base):
     queryType = Column(String)  # Added queryType field
     confidentialityLevel = Column(Integer)  # 0-100 percentage
     status = Column(String, default='Pending')
+    assigned_to = Column(Integer, ForeignKey('team_members.id'), nullable=True)
+    assigned_member = relationship('TeamMember', backref='assigned_tasks')
 
 class Team(Base):
     __tablename__ = 'teams'
@@ -35,7 +37,7 @@ class TeamMember(Base):
     status = Column(String, default='active')
     team_id = Column(Integer, ForeignKey('teams.id'))
     issues_solved = Column(Integer, default=0)
-    team = relationship('Team', back_populates='members')
+    team = relationship('Team', back_populates='members', lazy='joined')
 
 def initialize_teams():
     session = Session()

@@ -2,28 +2,20 @@
 
 {% block content %}
 <div class="header">
-    <h1>My Dashboard</h1>
+    <h1>Dashboard</h1>
     <div class="member-stats">
         <span class="status {{ member.status }}">{{ member.status }}</span>
         <span class="solved-count">Queries Solved: {{ member.issues_solved }}</span>
     </div>
 </div>
 
-<div class="queries-container">
-    <h2>Assigned Queries</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Query Number</th>
-                <th>Message</th>
-                <th>Query Type</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="queries-table-body">
-        </tbody>
-    </table>
+<div class="dashboard-sections">
+    <div class="section">
+        <h2>Available Team Queries</h2>
+        <div class="queries-container" id="team-queries">
+            <!-- Will be populated by JavaScript -->
+        </div>
+    </div>
 </div>
 {% endblock %}
 
