@@ -1,8 +1,11 @@
 from flask import Flask, jsonify, request, render_template, redirect, session, url_for
 from model import *
+from classifier import classify_message  # Import classify_message function
 from functools import wraps
 from sqlalchemy.orm import joinedload
 from datetime import datetime
+import os
+from twilio.twiml.messaging_response import MessagingResponse
 
 app = Flask(__name__)
 
@@ -20,7 +23,7 @@ initialize_db()
 @app.before_request
 def require_login():
     # Public routes that don't require login
-    public_routes = ['login', 'static']
+    public_routes = ['login', 'static', 'whatsapp']
     
     # Check if route is public
     if request.endpoint and request.endpoint in public_routes:
@@ -34,6 +37,51 @@ def require_login():
     if 'user_type' not in session:
         return redirect(url_for('login'))
 
+@app.route('/whatsapp', methods=['POST'])
+def whatsapp():
+    """
+    Endpoint to handle incoming WhatsApp messages, classify them, and store them in the database.
+    """
+    incoming_msg = request.values.get('Body', '').strip()
+    sender = request.values.get('From', '')
+
+    print(f"📨 Message from {sender}: {incoming_msg}")
+
+    # Classify the message
+    predicted_label = classify_message(incoming_msg)
+    print(f"🔍 Classified as: {predicted_label}")
+    # Create a response
+    resp = MessagingResponse()
+    resp.message(f"Hey, We have received your issue. Our team will resolve it shortly. Thank you for using our service.")
+
+
+    # Determine the routing team based on the query type
+    db_session = Session()
+    try:
+        routing_team = db_session.query(Team).filter_by(category=predicted_label).first()
+        routing_team_name = routing_team.name if routing_team else "Other"
+
+        # Add the classified message to the database
+        new_message = Message(
+            queryNumber=db_session.query(Message).count() + 1,  # Auto-increment queryNumber
+            message=incoming_msg,
+            routingTeam=routing_team_name,  # Assign the correct routing team
+            queryType=predicted_label,
+            confidentialityLevel=80,  # Default confidentiality level
+            status="Pending"
+        )
+        db_session.add(new_message)
+        db_session.commit()
+        print(f"✅ Message saved to database with ID: {new_message.id}")
+    except Exception as e:
+        db_session.rollback()
+        print(f"❌ Error saving message to database: {str(e)}")
+    finally:
+        db_session.close()
+
+    # Respond to the sender
+    return str(resp), 200, {'Content-Type': 'text/xml'}  # Ensure Twilio receives the response in XML format
+
 def get_nav_items(active_page):
     if session.get('user_type') == 'admin':
         return [
@@ -41,7 +89,7 @@ def get_nav_items(active_page):
             {'name': '👤Teams', 'url': '/teams', 'active': active_page == 'teams'},
             {'name': '⌚Settings', 'url': '/settings', 'active': active_page == 'settings'}
         ]
-    else:  # member navigation
+    else: 
         return [
             {'name': '🔠Dashboard', 'url': '/member/dashboard', 'active': active_page == 'dashboard'},
             {'name': '🤺My Tasks', 'url': '/member/my-tasks', 'active': active_page == 'my-tasks'},
@@ -59,13 +107,13 @@ def login():
             session['user_type'] = 'admin'
             return redirect(url_for('home'))
         
-        # Check for team member
+        
         db_session = Session()
         try:
             member = db_session.query(TeamMember).filter_by(email=email).first()
             
-            if member and password == member.email:  # Using email as password
-                # Update member status to active
+            if member and password == member.email:
+                
                 member.status = 'active'
                 db_session.commit()
                 
@@ -96,7 +144,7 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-# Add login required decorator
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -107,11 +155,11 @@ def login_required(f):
 
 @app.route('/')
 def root():
-    # Always redirect to login if not authenticated
+    
     if 'user_type' not in session:
         return redirect(url_for('login'))
         
-    # After login, redirect based on user type
+    
     if session.get('user_type') == 'admin':
         return redirect(url_for('home'))
     else:
@@ -158,7 +206,7 @@ def get_messages():
         'queryNumber': message.queryNumber,
         'message': message.message,
         'routingTeam': message.routingTeam,
-        'queryType': message.queryType,  # Added queryType field
+        'queryType': message.queryType,  
         'confidentialityLevel': message.confidentialityLevel,
         'status': message.status
     } for message in messages])
@@ -187,7 +235,7 @@ def team_management():
 def get_teams():
     try:
         session = Session()
-        # Use joinedload to prevent N+1 queries
+        
         teams = session.query(Team).options(joinedload(Team.members)).all()
         return jsonify([{
             'id': team.id,
@@ -211,7 +259,7 @@ def get_teams():
 def get_team_details(team_id):
     try:
         db_session = Session()
-        # Use joinedload here as well
+        
         team = db_session.query(Team).options(joinedload(Team.members)).get(team_id)
         if not team:
             return jsonify({'error': 'Team not found'}), 404
@@ -234,7 +282,7 @@ def get_team_details(team_id):
         db_session.close()
 
 @app.route('/api/teams/<int:team_id>/members', methods=['POST'])
-@login_required  # Add login requirement
+@login_required  
 def add_team_member(team_id):
     try:
         data = request.json
@@ -253,7 +301,7 @@ def add_team_member(team_id):
         if not team:
             return jsonify({'error': f'Team with id {team_id} not found'}), 404
             
-        # Check if email already exists
+        
         existing_member = db_session.query(TeamMember).filter_by(email=data['email']).first()
         if existing_member:
             return jsonify({'error': 'Email already registered'}), 409
@@ -263,7 +311,7 @@ def add_team_member(team_id):
             email=data['email'],
             role=data['role'],
             team_id=team_id,
-            status='inactive',  # Set initial status as inactive
+            status='inactive',  
             issues_solved=0
         )
         
@@ -285,7 +333,7 @@ def add_team_member(team_id):
         })
         
     except Exception as e:
-        print(f"Error adding member to team {team_id}:", str(e))  # Debug log
+        print(f"Error adding member to team {team_id}:", str(e))
         db_session.rollback()
         return jsonify({'error': str(e)}), 500
     finally:
@@ -296,7 +344,7 @@ def add_team_member(team_id):
 def member_dashboard():
     if session.get('user_type') != 'member':
         return redirect(url_for('home'))
-    # Get member from session
+    
     member_id = session.get('member_id')
     if not member_id:
         return redirect('/login')
@@ -401,9 +449,9 @@ def get_team_queries():
     try:
         member = db_session.query(TeamMember).options(joinedload(TeamMember.team)).get(member_id)
         if not member or not member.team:
-            return jsonify([])  # Return empty list if no team found
+            return jsonify([])  
         
-        # Get only unassigned queries for member's team
+        
         team_queries = db_session.query(Message).filter_by(
             routingTeam=member.team.name,
             assigned_to=None
@@ -577,8 +625,8 @@ def reset_password():
             return jsonify({'error': 'Request not found'}), 404
             
         member = reset_request.member
-        member.password = new_password  # Update member's password
-        db_session.delete(reset_request)  # Delete the reset request
+        member.password = new_password  
+        db_session.delete(reset_request) 
         db_session.commit()
         
         return jsonify({'message': 'Password reset successful'})
@@ -594,4 +642,5 @@ def get_query_types():
     return jsonify(QUERY_TYPES)
 
 if __name__ == '__main__':
+
     app.run(host='0.0.0.0', port=5000, debug=True)
