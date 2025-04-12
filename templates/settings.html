@@ -36,6 +36,26 @@
             <input type="number" id="refreshInterval" min="5" max="300" value="30">
         </div>
     </div>
+
+    <div class="settings-section">
+        <h2>Password Reset Requests</h2>
+        <div class="reset-requests">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Member Name</th>
+                        <th>Email</th>
+                        <th>Request Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="resetRequestsTable">
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 {% endblock %}
 

@@ -11,11 +11,19 @@
     <div class="layout-wrapper">
         <div class="sidebar">
             <h2>📄Email Classifier</h2>
-            <ul>
-                {% for item in nav_items %}
-                <li><a href="{{ item.url }}" {% if item.active %}class="active"{% endif %}>{{ item.name }}</a></li>
-                {% endfor %}
-            </ul>
+            <div class="nav-content">
+                <ul>
+                    {% for item in nav_items %}
+                    <li><a href="{{ item.url }}" {% if item.active %}class="active"{% endif %}>{{ item.name }}</a></li>
+                    {% endfor %}
+                </ul>
+                
+                <div class="sidebar-footer">
+                    <a href="{{ url_for('logout') }}" class="sign-out">
+                        <span>🚪 Sign Out</span>
+                    </a>
+                </div>
+            </div>
         </div>
 
         <div class="content-wrapper">

@@ -1,7 +1,8 @@
 from flask import Flask, jsonify, request, render_template, redirect, session, url_for
-from model import Session, Message, initialize_db, Base, engine, Team, TeamMember
+from model import Session, Message, initialize_db, Base, engine, Team, TeamMember, PasswordReset
 from functools import wraps
 from sqlalchemy.orm import joinedload
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -454,6 +455,78 @@ def solve_query(query_id):
         db_session.commit()
         
         return jsonify({'message': 'Query marked as solved'})
+    except Exception as e:
+        db_session.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        db_session.close()
+
+@app.route('/api/reset-request', methods=['POST'])
+def request_reset():
+    data = request.json
+    email = data.get('email')
+    
+    session = Session()
+    try:
+        member = session.query(TeamMember).filter_by(email=email).first()
+        if not member:
+            return jsonify({'error': 'Member not found'}), 404
+            
+        reset_request = PasswordReset(
+            member_id=member.id,
+            requested_at=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            status='pending'
+        )
+        session.add(reset_request)
+        session.commit()
+        return jsonify({'message': 'Reset request submitted'})
+    except Exception as e:
+        session.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        session.close()
+
+@app.route('/api/reset-requests', methods=['GET'])
+@login_required
+def get_reset_requests():
+    if session.get('user_type') != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    db_session = Session()
+    try:
+        requests = db_session.query(PasswordReset).join(TeamMember).all()
+        return jsonify([{
+            'id': req.id,
+            'member_name': req.member.name,
+            'member_email': req.member.email,
+            'requested_at': req.requested_at,
+            'status': req.status
+        } for req in requests])
+    finally:
+        db_session.close()
+
+@app.route('/api/reset-password', methods=['POST'])
+@login_required
+def reset_password():
+    if session.get('user_type') != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    data = request.json
+    request_id = data.get('requestId')
+    new_password = data.get('newPassword')
+    
+    db_session = Session()
+    try:
+        reset_request = db_session.query(PasswordReset).get(request_id)
+        if not reset_request:
+            return jsonify({'error': 'Request not found'}), 404
+            
+        member = reset_request.member
+        member.password = new_password  # In production, hash the password
+        reset_request.status = 'approved'
+        db_session.commit()
+        
+        return jsonify({'message': 'Password reset successful'})
     except Exception as e:
         db_session.rollback()
         return jsonify({'error': str(e)}), 500

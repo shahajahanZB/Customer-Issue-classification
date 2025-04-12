@@ -39,6 +39,15 @@ class TeamMember(Base):
     issues_solved = Column(Integer, default=0)
     team = relationship('Team', back_populates='members', lazy='joined')
 
+class PasswordReset(Base):
+    __tablename__ = 'password_resets'
+    
+    id = Column(Integer, primary_key=True)
+    member_id = Column(Integer, ForeignKey('team_members.id'))
+    requested_at = Column(String)
+    status = Column(String, default='pending')  # pending, approved, rejected
+    member = relationship('TeamMember', backref='password_resets')
+
 def initialize_teams():
     session = Session()
     try:

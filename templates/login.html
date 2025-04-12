@@ -21,6 +21,53 @@
             </div>
             <button type="submit">Login</button>
         </form>
+        <div class="forgot-password">
+            <a href="#" onclick="showForgotPassword()">Forgot Password?</a>
+        </div>
     </div>
+
+    <div id="forgotPasswordModal" class="modal">
+        <div class="modal-content">
+            <h2>Reset Password</h2>
+            <p>Enter your email address to reset your password</p>
+            <form id="resetForm" onsubmit="requestReset(event)">
+                <div class="form-group">
+                    <input type="email" name="email" placeholder="Email" required>
+                </div>
+                <button type="submit">Request Reset</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showForgotPassword() {
+            document.getElementById('forgotPasswordModal').classList.add('show');
+        }
+
+        async function requestReset(event) {
+            event.preventDefault();
+            const form = event.target;
+            const email = form.email.value;
+
+            try {
+                const response = await fetch('/api/reset-request', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                if (response.ok) {
+                    alert('Password reset request sent to admin');
+                    document.getElementById('forgotPasswordModal').classList.remove('show');
+                } else {
+                    alert('Error sending reset request');
+                }
+            } catch (error) {
+                alert('Error sending reset request');
+            }
+        }
+    </script>
 </body>
 </html>
