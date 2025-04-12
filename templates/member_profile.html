@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+    <h1>My Profile</h1>
+</div>
+
+<div class="profile-container">
+    {% if member %}
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {{ member.name[:1] }}
+            </div>
+            <div class="profile-info">
+                <h2>{{ member.name }}</h2>
+                <p class="role">{{ member.role }}</p>
+            </div>
+        </div>
+        
+        <div class="profile-details">
+            <div class="detail-item">
+                <label>Team</label>
+                <p>{{ member.team.name }}</p>
+            </div>
+            <div class="detail-item">
+                <label>Email</label>
+                <p>{{ member.email }}</p>
+            </div>
+            <div class="detail-item">
+                <label>Status</label>
+                <span class="status {{ member.status }}">{{ member.status }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Issues Solved</label>
+                <p>{{ member.issues_solved }}</p>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="error-card">
+        <p>Profile information not available. Please try logging in again.</p>
+        <a href="{{ url_for('logout') }}" class="button">Logout</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

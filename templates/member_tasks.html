@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+    <h1>My Tasks</h1>
+    <div class="member-stats">
+        <span class="status {{ member.status }}">{{ member.status }}</span>
+        <span class="solved-count">Tasks in Progress: {{ tasks|length }}</span>
+    </div>
+</div>
+
+<div class="tasks-container">
+    {% if tasks %}
+        {% for task in tasks %}
+        <div class="task-card">
+            <h3>#{{ task.queryNumber }}</h3>
+            <p class="message">{{ task.message }}</p>
+            <div class="task-footer">
+                <span class="query-type">{{ task.queryType }}</span>
+                <span class="status {{ task.status.lower() }}">{{ task.status }}</span>
+                <button onclick="markAsSolved({{ task.id }})" class="solve-button">Mark as Solved</button>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-tasks">
+            <p>You don't have any tasks in progress.</p>
+            <a href="{{ url_for('member_dashboard') }}" class="button">Find New Tasks</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='member.js') }}"></script>
+{% endblock %}

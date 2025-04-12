@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Query Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="layout-wrapper">
+        <div class="sidebar">
+            <h2>📄Email Classifier</h2>
+            <div class="nav-content">
+                <ul>
+                    {% for item in nav_items %}
+                    <li><a href="{{ item.url }}" {% if item.active %}class="active"{% endif %}>{{ item.name }}</a></li>
+                    {% endfor %}
+                </ul>
+                
+                <div class="sidebar-footer">
+                    <a href="{{ url_for('logout') }}" class="sign-out">
+                        <span>🚪 Sign Out</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <div class="main-content">
+                {% block content %}{% endblock %}
+            </div>
+            
+            <footer class="footer">
+                <p class="copyright">&copy; 2024 Email Classifier. All rights reserved.</p>
+            </footer>
+        </div>
+    </div>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

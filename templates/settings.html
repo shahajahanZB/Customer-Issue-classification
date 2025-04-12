@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+    <h1>Settings</h1>
+</div>
+
+<div class="settings-container">
+    <div class="settings-section">
+        <h2>Appearance</h2>
+        <div class="setting-item">
+            <label>Theme</label>
+            <select id="themeSelect">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="settings-section">
+        <h2>Notifications</h2>
+        <div class="setting-item">
+            <label>Email Notifications</label>
+            <input type="checkbox" id="emailNotifications">
+        </div>
+        <div class="setting-item">
+            <label>Desktop Notifications</label>
+            <input type="checkbox" id="desktopNotifications">
+        </div>
+    </div>
+
+    <div class="settings-section">
+        <h2>System</h2>
+        <div class="setting-item">
+            <label>Auto Refresh Interval (seconds)</label>
+            <input type="number" id="refreshInterval" min="5" max="300" value="30">
+        </div>
+    </div>
+
+    <div class="settings-section">
+        <h2>Password Reset Requests</h2>
+        <div class="reset-requests">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Member Name</th>
+                        <th>Email</th>
+                        <th>Request Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="resetRequestsTable">
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='settings.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+    <h1>Dashboard</h1>
+    <div class="member-stats">
+        <span class="status {{ member.status }}">{{ member.status }}</span>
+        <span class="solved-count">Queries Solved: {{ member.issues_solved }}</span>
+    </div>
+</div>
+
+<div class="dashboard-sections">
+    <div class="section">
+        <h2>Available Team Queries</h2>
+        <div class="queries-container" id="team-queries">
+            <!-- Will be populated by JavaScript -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='member.js') }}"></script>
+{% endblock %}

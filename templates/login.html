@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Query Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <h1>Query Dashboard</h1>
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        <form action="{{ url_for('login') }}" method="POST">
+            <div class="form-group">
+                <input type="email" name="email" placeholder="Email" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <div class="forgot-password">
+            <a href="#" onclick="showForgotPassword()">Forgot Password?</a>
+        </div>
+    </div>
+
+    <div id="forgotPasswordModal" class="modal">
+        <div class="modal-content">
+            <h2>Reset Password</h2>
+            <p>Enter your email address to reset your password</p>
+            <form id="resetForm">
+                <div class="form-group">
+                    <input type="email" id="resetEmail" name="email" placeholder="Email" required>
+                </div>
+                <button type="button" onclick="requestReset()">Request Reset</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showForgotPassword() {
+            document.getElementById('forgotPasswordModal').classList.add('show');
+        }
+
+        async function requestReset() {
+            const email = document.getElementById('resetEmail').value;
+            try {
+                const response = await fetch('/api/reset-request', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Password reset request sent successfully');
+                    document.getElementById('forgotPasswordModal').classList.remove('show');
+                } else {
+                    alert(data.error || 'Error sending reset request');
+                }
+            } catch (error) {
+                alert('Error sending reset request');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='team.css') }}">
+{% endblock %}
+
+{% block title %}Teams{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>Team Management</h1>
+</div>
+
+<div class="teams-container">
+    <div id="teams-list" class="teams-list">
+        <h2>Teams</h2>
+        <p class="subtitle">Select a team to view details</p>
+        {% for team in teams %}
+        <div class="team-card {% if loop.first %}active{% endif %}" 
+             data-team-id="{{ team.id }}"
+             data-team-name="{{ team.name }}">
+            <h3>{{ team.name }}</h3>
+            <p class="query-type">Query Type: {{ team.name }}</p>
+            <p class="category">Department: {{ team.category }}</p>
+            <span class="member-badge">{{ team.members|length }} member{% if team.members|length != 1 %}s{% endif %}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="team-details">
+        <div class="team-header">
+            <h2 id="selected-team-name"></h2>
+        </div>
+        
+        <!-- Static Form -->
+        <div class="add-member-section">
+            <div class="add-member-form">
+                <h3>Add New Team Member</h3>
+                <form id="addMemberForm">
+                    <div class="form-field">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" class="form-control" placeholder="Enter member name" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="Enter email address" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="role">Team Role</label>
+                        <input type="text" id="role" name="role" class="form-control" placeholder="Enter role (e.g. Support Agent)" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="submit-button">Add Member</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="members-table">
+            <h3>Team Members</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Issues Solved</th>
+                    </tr>
+                </thead>
+                <tbody id="team-members">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='team.js') }}"></script>
+{% endblock %}
