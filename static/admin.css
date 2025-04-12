@@ -77,7 +77,8 @@ body {
 }
 
 .main-content {
-  margin-left: 270px;
+  margin-left: 300px;
+  margin-right: 20px; /* Increased from 270px to add 5px more gap */
   padding: 20px;
 }
 

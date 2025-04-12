@@ -20,7 +20,8 @@
              data-team-id="{{ team.id }}"
              data-team-name="{{ team.name }}">
             <h3>{{ team.name }}</h3>
-            <p class="category">Category: {{ team.category }}</p>
+            <p class="query-type">Query Type: {{ team.name }}</p>
+            <p class="category">Department: {{ team.category }}</p>
             <span class="member-badge">{{ team.members|length }} member{% if team.members|length != 1 %}s{% endif %}</span>
         </div>
         {% endfor %}

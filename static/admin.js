@@ -1,8 +1,22 @@
+// Fetch query types from the database
+async function fetchQueryTypes() {
+    try {
+        const response = await fetch('/api/query-types');
+        const queryTypes = await response.json();
+        return queryTypes;
+    } catch (error) {
+        console.error('Error fetching query types:', error);
+        return [];
+    }
+}
+
 // Fetch messages from the database and populate the table
 async function fetchMessages() {
     try {
-        const response = await fetch('/api/messages');
-        const messages = await response.json();
+        const [messages, queryTypes] = await Promise.all([
+            fetch('/api/messages').then(r => r.json()),
+            fetchQueryTypes()
+        ]);
 
         const tableBody = document.getElementById('message-table-body');
         tableBody.innerHTML = '';
@@ -20,7 +34,7 @@ async function fetchMessages() {
             tableBody.appendChild(row);
         });
     } catch (error) {
-        // Handle error silently
+        console.error('Error:', error);
     }
 }
 

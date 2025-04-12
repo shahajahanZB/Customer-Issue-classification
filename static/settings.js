@@ -49,24 +49,41 @@ function applyTheme(theme) {
 }
 
 async function fetchResetRequests() {
-    const response = await fetch('/api/reset-requests');
-    const requests = await response.json();
-    
-    const tbody = document.getElementById('resetRequestsTable');
-    tbody.innerHTML = requests.map(req => `
-        <tr>
-            <td>${req.member_name}</td>
-            <td>${req.member_email}</td>
-            <td>${req.requested_at}</td>
-            <td>${req.status}</td>
-            <td>
-                ${req.status === 'pending' ? `
-                    <button onclick="handleReset(${req.id}, '${req.member_email}')">Reset Password</button>
-                ` : ''}
-            </td>
-        </tr>
-    `).join('');
+    try {
+        const response = await fetch('/api/reset-requests');
+        if (!response.ok) {
+            throw new Error('Failed to fetch reset requests');
+        }
+        const requests = await response.json();
+        
+        const tbody = document.getElementById('resetRequestsTable');
+        if (!tbody) return;
+        
+        if (requests.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5">No pending reset requests</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = requests.map(req => `
+            <tr>
+                <td>${req.member_name}</td>
+                <td>${req.member_email}</td>
+                <td>${req.requested_at}</td>
+                <td>${req.status}</td>
+                <td>
+                    ${req.status === 'pending' ? `
+                        <button onclick="handleReset(${req.id}, '${req.member_email}')">Reset Password</button>
+                    ` : ''}
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Error fetching reset requests:', error);
+    }
 }
+
+// Add auto-refresh functionality
+setInterval(fetchResetRequests, 5000); // Refresh every 5 seconds
 
 async function handleReset(requestId, email) {
     const newPassword = prompt('Enter new password for ' + email);

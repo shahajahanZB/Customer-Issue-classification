@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, render_template, redirect, session, url_for
-from model import Session, Message, initialize_db, Base, engine, Team, TeamMember, PasswordReset
+from model import *
 from functools import wraps
 from sqlalchemy.orm import joinedload
 from datetime import datetime
@@ -16,6 +16,23 @@ ADMIN_PASSWORD = "admin@example.com"
 # Ensure database and tables exist
 Base.metadata.create_all(engine)
 initialize_db()
+
+@app.before_request
+def require_login():
+    # Public routes that don't require login
+    public_routes = ['login', 'static']
+    
+    # Check if route is public
+    if request.endpoint and request.endpoint in public_routes:
+        return
+        
+    # Allow static file access
+    if request.path.startswith('/static/'):
+        return
+        
+    # Require login for all other routes
+    if 'user_type' not in session:
+        return redirect(url_for('login'))
 
 def get_nav_items(active_page):
     if session.get('user_type') == 'admin':
@@ -44,19 +61,38 @@ def login():
         
         # Check for team member
         db_session = Session()
-        member = db_session.query(TeamMember).filter_by(email=email).first()
-        
-        if member and password == member.email:  # Using email as password
-            session['user_type'] = 'member'
-            session['member_id'] = member.id
-            return redirect(url_for('member_dashboard'))
-        
-        return render_template('login.html', error='Invalid credentials')
+        try:
+            member = db_session.query(TeamMember).filter_by(email=email).first()
+            
+            if member and password == member.email:  # Using email as password
+                # Update member status to active
+                member.status = 'active'
+                db_session.commit()
+                
+                session['user_type'] = 'member'
+                session['member_id'] = member.id
+                return redirect(url_for('member_dashboard'))
+            
+            return render_template('login.html', error='Invalid credentials')
+        finally:
+            db_session.close()
     
     return render_template('login.html')
 
 @app.route('/logout')
 def logout():
+    if 'user_type' in session and session['user_type'] == 'member':
+        member_id = session.get('member_id')
+        if member_id:
+            db_session = Session()
+            try:
+                member = db_session.query(TeamMember).get(member_id)
+                if member:
+                    member.status = 'inactive'
+                    db_session.commit()
+            finally:
+                db_session.close()
+    
     session.clear()
     return redirect(url_for('login'))
 
@@ -70,6 +106,18 @@ def login_required(f):
     return decorated_function
 
 @app.route('/')
+def root():
+    # Always redirect to login if not authenticated
+    if 'user_type' not in session:
+        return redirect(url_for('login'))
+        
+    # After login, redirect based on user type
+    if session.get('user_type') == 'admin':
+        return redirect(url_for('home'))
+    else:
+        return redirect(url_for('member_dashboard'))
+
+@app.route('/home')
 @login_required
 def home():
     if session.get('user_type') != 'admin':
@@ -215,7 +263,7 @@ def add_team_member(team_id):
             email=data['email'],
             role=data['role'],
             team_id=team_id,
-            status='active',
+            status='inactive',  # Set initial status as inactive
             issues_solved=0
         )
         
@@ -463,12 +511,17 @@ def solve_query(query_id):
 
 @app.route('/api/reset-request', methods=['POST'])
 def request_reset():
+    if not request.is_json:
+        return jsonify({'error': 'Content type must be application/json'}), 400
+        
     data = request.json
     email = data.get('email')
+    if not email:
+        return jsonify({'error': 'Email is required'}), 400
     
-    session = Session()
+    db_session = Session()
     try:
-        member = session.query(TeamMember).filter_by(email=email).first()
+        member = db_session.query(TeamMember).filter_by(email=email).first()
         if not member:
             return jsonify({'error': 'Member not found'}), 404
             
@@ -477,14 +530,16 @@ def request_reset():
             requested_at=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             status='pending'
         )
-        session.add(reset_request)
-        session.commit()
-        return jsonify({'message': 'Reset request submitted'})
+        db_session.add(reset_request)
+        db_session.commit()
+        
+        return jsonify({'message': 'Reset request submitted successfully'})
+        
     except Exception as e:
-        session.rollback()
+        db_session.rollback()
         return jsonify({'error': str(e)}), 500
     finally:
-        session.close()
+        db_session.close()
 
 @app.route('/api/reset-requests', methods=['GET'])
 @login_required
@@ -522,8 +577,8 @@ def reset_password():
             return jsonify({'error': 'Request not found'}), 404
             
         member = reset_request.member
-        member.password = new_password  # In production, hash the password
-        reset_request.status = 'approved'
+        member.password = new_password  # Update member's password
+        db_session.delete(reset_request)  # Delete the reset request
         db_session.commit()
         
         return jsonify({'message': 'Password reset successful'})
@@ -533,5 +588,10 @@ def reset_password():
     finally:
         db_session.close()
 
+@app.route('/api/query-types', methods=['GET'])
+@login_required
+def get_query_types():
+    return jsonify(QUERY_TYPES)
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

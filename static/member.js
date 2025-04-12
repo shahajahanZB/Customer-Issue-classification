@@ -14,7 +14,6 @@ function renderQueries(containerId, queries) {
                 <span class="query-type">${query.queryType}</span>
                 <span class="status ${query.status.toLowerCase()}">${query.status}</span>
                 <button onclick="pickTask(${query.id})">Pick Up</button>
-                <button onclick="markAsSolved(${query.id})">Mark as Solved</button>
             </div>
         </div>
     `).join('') || '<p class="no-items">No queries available</p>';

@@ -30,11 +30,11 @@
         <div class="modal-content">
             <h2>Reset Password</h2>
             <p>Enter your email address to reset your password</p>
-            <form id="resetForm" onsubmit="requestReset(event)">
+            <form id="resetForm">
                 <div class="form-group">
-                    <input type="email" name="email" placeholder="Email" required>
+                    <input type="email" id="resetEmail" name="email" placeholder="Email" required>
                 </div>
-                <button type="submit">Request Reset</button>
+                <button type="button" onclick="requestReset()">Request Reset</button>
             </form>
         </div>
     </div>
@@ -44,11 +44,8 @@
             document.getElementById('forgotPasswordModal').classList.add('show');
         }
 
-        async function requestReset(event) {
-            event.preventDefault();
-            const form = event.target;
-            const email = form.email.value;
-
+        async function requestReset() {
+            const email = document.getElementById('resetEmail').value;
             try {
                 const response = await fetch('/api/reset-request', {
                     method: 'POST',
@@ -57,12 +54,13 @@
                     },
                     body: JSON.stringify({ email })
                 });
-
+                
+                const data = await response.json();
                 if (response.ok) {
-                    alert('Password reset request sent to admin');
+                    alert('Password reset request sent successfully');
                     document.getElementById('forgotPasswordModal').classList.remove('show');
                 } else {
-                    alert('Error sending reset request');
+                    alert(data.error || 'Error sending reset request');
                 }
             } catch (error) {
                 alert('Error sending reset request');
