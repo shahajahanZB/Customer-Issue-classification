@@ -24,7 +24,7 @@
 </p>
 
 <h4 align="center"> 
-	✨ Service Sphere — Your All-in-One Service Marketplace 🚀
+	✨ Classio.ai — Where every issue finds its path  🛣️
 </h4>
 
 <!--
