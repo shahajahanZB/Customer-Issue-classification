@@ -218,7 +218,7 @@ This project is under license from MIT. For more details, see the [LICENSE](LICE
 
 ## :busts_in_silhouette: Author ##
 
-Made with :heart: by <a href="https://github.com/shiv1119" target="_blank">Team Leveling</a>
+Made with :heart: by <a href="https://github.com/shahajahanZB" target="_blank">Team API</a>
 
 &#xa0;
 
